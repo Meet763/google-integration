@@ -1,0 +1,55 @@
+{% extends "portal/base.html" %}
+
+{% block title %}New Google Form - Calendar Desk{% endblock %}
+
+{% block content %}
+  <header class="page-head">
+    <h1>New Google Form</h1>
+    <p>Create a Google Form with short-answer questions using the connected Google Workspace account. A matching Sheet can be created with the same response columns.</p>
+  </header>
+
+  <form class="panel stack-form" method="post" action="{% url 'google_form_new' %}">
+    {% csrf_token %}
+    {% if form.non_field_errors %}
+      <div class="message error">{{ form.non_field_errors }}</div>
+    {% endif %}
+
+    <label>
+      Form title
+      {{ form.title }}
+      {{ form.title.errors }}
+    </label>
+
+    <label>
+      Description
+      {{ form.description }}
+      {{ form.description.errors }}
+    </label>
+
+    <label>
+      Questions
+      {{ form.questions }}
+      <span class="hint">{{ form.questions.help_text }}</span>
+      {{ form.questions.errors }}
+    </label>
+
+    <label class="check">
+      {{ form.collect_email }}
+      <span>Collect email address</span>
+    </label>
+
+    {% if sheets_ready %}
+      <label class="check">
+        {{ form.create_sheet }}
+        <span>
+          Create a matching Google Sheet
+          <span class="hint">{{ form.create_sheet.help_text }}</span>
+        </span>
+      </label>
+    {% else %}
+      <p class="muted">Turn on Google Sheets in the integration panel if you also want a response workbook.</p>
+    {% endif %}
+
+    <button type="submit" class="button">Create with Google APIs</button>
+  </form>
+{% endblock %}

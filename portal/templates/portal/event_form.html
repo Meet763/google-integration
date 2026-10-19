@@ -1,0 +1,84 @@
+{% extends "portal/base.html" %}
+{% load static %}
+
+{% block title %}New event · Calendar Desk{% endblock %}
+
+{% block content %}
+  <header class="page-head">
+    <h1>New event</h1>
+    <p>This is written to the connected Google Calendar. The time is checked again at save so a new meeting cannot be double-booked.</p>
+  </header>
+
+  <form class="panel stack-form" id="event-form" method="post" action="{% url 'event_new' %}">
+    {% csrf_token %}
+    {% if form.non_field_errors %}
+      <div class="message error">{{ form.non_field_errors }}</div>
+    {% endif %}
+
+    <label>
+      Title
+      {{ form.title }}
+      {{ form.title.errors }}
+    </label>
+
+    <div class="grid-3">
+      <label>
+        Date
+        {{ form.day }}
+        {{ form.day.errors }}
+      </label>
+      <label>
+        Start
+        {{ form.start_time }}
+        {{ form.start_time.errors }}
+      </label>
+      <label>
+        Duration (minutes)
+        {{ form.duration }}
+        {{ form.duration.errors }}
+      </label>
+    </div>
+
+    <label>
+      Time zone
+      {{ form.timezone_name }}
+      {{ form.timezone_name.errors }}
+    </label>
+
+    {% if integration.meet_allowed and meet_ready %}
+      <label class="check">
+        {{ form.meet_enabled }}
+        <span>Add a Google Meet link</span>
+      </label>
+    {% elif not integration.meet_allowed %}
+      <p class="muted">Meet links are turned off in the admin portal.</p>
+    {% else %}
+      <p class="muted">Turn on Google Meet in the integration panel to add a Meet link.</p>
+    {% endif %}
+
+    {% if integration.attendees_allowed %}
+      <label class="check">
+        {{ form.attendees_enabled }}
+        <span>Add attendees</span>
+      </label>
+      <div class="attendees" id="attendees-fields">
+        <label>
+          Attendee emails
+          {{ form.attendees }}
+          <span class="hint">One address per line. Invites are sent only when attendees are on.</span>
+          {{ form.attendees.errors }}
+        </label>
+        <ul class="chips" id="attendee-chips" hidden></ul>
+      </div>
+    {% else %}
+      <p class="muted">Attendees are turned off in the admin portal.</p>
+    {% endif %}
+
+    <p class="summary" id="event-summary" aria-live="polite"></p>
+    <button type="submit" class="button">Create on Google Calendar</button>
+  </form>
+{% endblock %}
+
+{% block scripts %}
+  <script src="{% static 'portal/js/event-form.js' %}"></script>
+{% endblock %}

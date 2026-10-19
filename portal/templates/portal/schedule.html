@@ -1,0 +1,78 @@
+{% extends "portal/base.html" %}
+
+{% block title %}Free time · Calendar Desk{% endblock %}
+
+{% block content %}
+  <header class="page-head">
+    <h1>Free time</h1>
+    <p>Pick a day, hours, and duration. Click a slot to create the event at that time.</p>
+  </header>
+
+  <form class="panel filters" method="get" action="{% url 'schedule' %}">
+    <label>
+      Date
+      {{ form.day }}
+      {{ form.day.errors }}
+    </label>
+    <label>
+      From
+      {{ form.window_start }}
+      {{ form.window_start.errors }}
+    </label>
+    <label>
+      Until
+      {{ form.window_end }}
+      {{ form.window_end.errors }}
+    </label>
+    <fieldset>
+      <legend>Duration</legend>
+      <div class="choices">
+        {% for radio in form.duration %}
+          <label class="choice">{{ radio.tag }}<span>{{ radio.choice_label }}</span></label>
+        {% endfor %}
+      </div>
+      {{ form.duration.errors }}
+    </fieldset>
+    <label>
+      Time zone
+      {{ form.timezone_name }}
+      {{ form.timezone_name.errors }}
+    </label>
+    <button type="submit" class="button">Show free slots</button>
+  </form>
+
+  {% if result %}
+    <section class="stats">
+      <article>
+        <p class="stat-value">{{ result.meeting_count }}</p>
+        <p class="stat-label">Meetings in {{ result.window_label }}</p>
+      </article>
+      <article>
+        <p class="stat-value">{{ result.slots|length }}</p>
+        <p class="stat-label">Free slots for {{ selected.duration }} min</p>
+      </article>
+    </section>
+
+    {% if result.all_day_block %}
+      <p class="message warning">An all-day event blocks this range, so no timed slot is offered.</p>
+    {% endif %}
+
+    <section>
+      <h2>Free slots</h2>
+      {% if result.slots %}
+        <ul class="slot-grid">
+          {% for slot in result.slots %}
+            <li>
+              <a href="{% url 'event_new' %}?day={{ selected.day|date:'Y-m-d' }}&start={{ slot.start_value }}&duration={{ selected.duration }}&tz={{ selected.timezone_name }}">
+                <strong>{{ slot.start_label }}–{{ slot.end_label }}</strong>
+                <span>Use this slot</span>
+              </a>
+            </li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <p class="muted">No free slot fits {{ selected.duration }} min inside {{ result.window_label }}.</p>
+      {% endif %}
+    </section>
+  {% endif %}
+{% endblock %}

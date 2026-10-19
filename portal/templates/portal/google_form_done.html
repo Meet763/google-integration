@@ -1,0 +1,54 @@
+{% extends "portal/base.html" %}
+
+{% block title %}Google Form created - Calendar Desk{% endblock %}
+
+{% block content %}
+  <header class="page-head">
+    <h1>Google Form created</h1>
+    <p>{{ created.form_title }} is ready in the connected Google account.</p>
+  </header>
+
+  <section class="panel">
+    <dl class="facts">
+      <div>
+        <dt>Responder link</dt>
+        <dd>
+          {% if created.responder_uri %}
+            <a href="{{ created.responder_uri }}" rel="noopener">{{ created.responder_uri }}</a>
+          {% else %}
+            Created
+          {% endif %}
+        </dd>
+      </div>
+      <div>
+        <dt>Edit link</dt>
+        <dd><a href="{{ created.edit_uri }}" rel="noopener">Open in Google Forms</a></dd>
+      </div>
+      <div>
+        <dt>Questions</dt>
+        <dd>{{ created.questions|join:", " }}</dd>
+      </div>
+      <div>
+        <dt>Linked sheet</dt>
+        <dd>
+          {% if created.linked_sheet_id %}
+            {{ created.linked_sheet_id }}
+          {% elif created.sheet %}
+            <a href="{{ created.sheet.spreadsheet_url }}" rel="noopener">Open prepared response sheet</a>
+          {% else %}
+            Not created
+          {% endif %}
+        </dd>
+      </div>
+    </dl>
+
+    {% if created.sheet and not created.linked_sheet_id %}
+      <p class="muted">Google exposes the form's linked sheet id as read-only in the Forms API. Open the form's Responses tab and choose Link to Sheets, then select the prepared response sheet if you want native response syncing.</p>
+    {% endif %}
+
+    <div class="actions">
+      <a class="button" href="{% url 'google_form_new' %}">Create another form</a>
+      <a class="button secondary" href="{% url 'home' %}">Back home</a>
+    </div>
+  </section>
+{% endblock %}

@@ -1,0 +1,51 @@
+{% extends "portal/base.html" %}
+
+{% block title %}Form responses - Calendar Desk{% endblock %}
+
+{% block content %}
+  <header class="page-head">
+    <h1>Form responses</h1>
+    <p>Look up a Google Form by ID and inspect its latest response count.</p>
+  </header>
+
+  <form class="panel stack-form" method="post" action="{% url 'google_form_lookup' %}">
+    {% csrf_token %}
+    <label>
+      Form ID
+      {{ form.form_id }}
+      <span class="hint">{{ form.form_id.help_text }}</span>
+      {{ form.form_id.errors }}
+    </label>
+    <button type="submit" class="button">Check responses</button>
+  </form>
+
+  {% if overview %}
+    <section class="panel result-panel">
+      <h2>{{ overview.title }}</h2>
+      <dl class="facts">
+        <div>
+          <dt>Responses</dt>
+          <dd>{{ overview.response_count }}</dd>
+        </div>
+        <div>
+          <dt>Edit</dt>
+          <dd><a href="{{ overview.edit_uri }}" rel="noopener">Open in Google Forms</a></dd>
+        </div>
+        <div>
+          <dt>Responder</dt>
+          <dd>
+            {% if overview.responder_uri %}
+              <a href="{{ overview.responder_uri }}" rel="noopener">{{ overview.responder_uri }}</a>
+            {% else %}
+              Not published
+            {% endif %}
+          </dd>
+        </div>
+        <div>
+          <dt>Linked sheet</dt>
+          <dd>{{ overview.linked_sheet_id|default:"None" }}</dd>
+        </div>
+      </dl>
+    </section>
+  {% endif %}
+{% endblock %}

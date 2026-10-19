@@ -1,0 +1,48 @@
+{% extends "portal/base.html" %}
+
+{% block title %}Event created · Calendar Desk{% endblock %}
+
+{% block content %}
+  <header class="page-head">
+    <h1>Event created</h1>
+    <p>{{ event.summary }} is on the connected calendar, {{ event.start_label }}–{{ event.end_label }} ({{ event.timezone }}).</p>
+  </header>
+  <section class="panel">
+    <dl class="facts">
+      <div>
+        <dt>Calendar</dt>
+        <dd>
+          {% if event.html_link %}
+            <a href="{{ event.html_link }}" rel="noopener">Open in Google Calendar</a>
+          {% else %}
+            Saved
+          {% endif %}
+        </dd>
+      </div>
+      <div>
+        <dt>Meet link</dt>
+        <dd>
+          {% if event.meet_link %}
+            <a href="{{ event.meet_link }}" rel="noopener">{{ event.meet_link }}</a>
+          {% else %}
+            Not added
+          {% endif %}
+        </dd>
+      </div>
+      <div>
+        <dt>Attendees</dt>
+        <dd>
+          {% if event.attendees %}
+            {{ event.attendees|join:", " }}
+          {% else %}
+            None
+          {% endif %}
+        </dd>
+      </div>
+    </dl>
+    <div class="actions">
+      <a class="button" href="{% url 'event_new' %}">Create another</a>
+      <a class="button secondary" href="{% url 'schedule' %}">Back to free time</a>
+    </div>
+  </section>
+{% endblock %}

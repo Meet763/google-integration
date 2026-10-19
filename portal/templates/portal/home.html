@@ -1,0 +1,157 @@
+{% extends "portal/base.html" %}
+{% load static %}
+
+{% block title %}Calendar Desk{% endblock %}
+
+{% block content %}
+  <section class="hero">
+    <p class="eyebrow">Google integration</p>
+    <h1>Turn Google on, pick the services, then sign in once.</h1>
+    <p class="lede">
+      The saved token stays on this server so you are not asked to sign in again
+      for every visit. Calendar, Meet, Forms, and Sheets are ready now. Docs and
+      Tasks keep their permission for later use.
+    </p>
+  </section>
+
+  {% if not integration.is_ready %}
+    <section class="panel">
+      <h2>Waiting for the Google client</h2>
+      <p>Add the OAuth client id, secret, and redirect URL in <code>config/settings.py</code> or environment variables before anyone can connect.</p>
+    </section>
+  {% else %}
+    <section class="panel google-setup">
+      <form method="post" action="{% url 'oauth_start' %}" id="google-connect-form">
+        {% csrf_token %}
+        <input type="hidden" name="next" value="{{ next }}">
+        <div class="switch-row">
+          <label class="switch">
+            {{ connect_form.google_enabled }}
+            <span class="switch-ui" aria-hidden="true"></span>
+            <span class="switch-copy">
+              <strong>Google integration</strong>
+              <span class="hint">
+                {% if google_connection.is_connected %}
+                  Connected as {{ google_connection.email }}
+                {% else %}
+                  Off until you enable it and finish Google sign-in
+                {% endif %}
+              </span>
+            </span>
+          </label>
+        </div>
+
+        <div class="service-box" id="google-services">
+          <p class="service-lead">Choose what this sign-in is allowed to use.</p>
+          <ul class="service-list">
+            {% for item in google_services %}
+              <li>
+                <label class="check">
+                  <input
+                    type="checkbox"
+                    name="services"
+                    value="{{ item.key }}"
+                    {% if item.key in connect_form.initial.services %}checked{% endif %}
+                  >
+                  <span>
+                    <strong>{{ item.label }}</strong>
+                    <span class="hint">{{ item.hint }}</span>
+                  </span>
+                </label>
+              </li>
+            {% endfor %}
+          </ul>
+          {{ connect_form.services.errors }}
+        </div>
+        <p class="summary" id="google-connect-note" aria-live="polite"></p>
+        <button
+          type="submit"
+          class="button"
+          id="google-connect-submit"
+          data-on="{% if google_connection.is_connected %}Save and keep using this account{% else %}Enable and sign in with Google{% endif %}"
+        >
+          {% if google_connection.is_connected %}Save and keep using this account{% else %}Enable and sign in with Google{% endif %}
+        </button>
+      </form>
+      {% if google_connection.is_connected %}
+        <form method="post" action="{% url 'disconnect' %}" class="danger-row">
+          {% csrf_token %}
+          <button type="submit" class="text-button">Remove Google access and delete the saved token</button>
+        </form>
+      {% endif %}
+    </section>
+  {% endif %}
+
+  {% if google_connection.is_connected and google_connection.google_enabled %}
+    <section class="panel workspace-modules">
+      <h2>Workspace modules</h2>
+      <div class="actions">
+        {% if calendar_ready %}
+          <a class="button secondary" href="{% url 'schedule' %}">Find free time</a>
+          <a class="button secondary" href="{% url 'event_new' %}">Create event</a>
+        {% endif %}
+        {% if meet_ready %}
+          <a class="button secondary" href="{% url 'meet_new' %}">Create Meet</a>
+        {% endif %}
+        {% if docs_ready %}
+          <a class="button secondary" href="{% url 'google_doc_new' %}">Create Doc</a>
+        {% endif %}
+        {% if sheets_ready %}
+          <a class="button secondary" href="{% url 'google_sheet_new' %}">Create Sheet</a>
+        {% endif %}
+        {% if forms_ready %}
+          <a class="button secondary" href="{% url 'google_form_new' %}">Create Form</a>
+          <a class="button secondary" href="{% url 'google_form_lookup' %}">Form responses</a>
+        {% endif %}
+        {% if tasks_ready %}
+          <a class="button secondary" href="{% url 'google_tasks' %}">Manage Tasks</a>
+        {% endif %}
+      </div>
+    </section>
+  {% endif %}
+
+  {% if calendar_ready %}
+    <section class="stats">
+      <article>
+        <p class="stat-value">{% if today %}{{ today.meeting_count }}{% else %}—{% endif %}</p>
+        <p class="stat-label">Meetings today</p>
+      </article>
+      <article>
+        <p class="stat-value">{% if today %}{{ today.slots|length }}{% else %}—{% endif %}</p>
+        <p class="stat-label">45 min slots still open</p>
+      </article>
+      <article>
+        <p class="stat-value">{{ google_connection.email }}</p>
+        <p class="stat-label">Connected account</p>
+      </article>
+    </section>
+    {% if schedule_error %}
+      <p class="message error">{{ schedule_error }}</p>
+    {% endif %}
+    <div class="actions">
+      <a class="button" href="{% url 'schedule' %}">Find free time</a>
+      <a class="button secondary" href="{% url 'event_new' %}">Create an event</a>
+    </div>
+    {% if today and today.meetings %}
+      <section>
+        <h2>Today</h2>
+        <ul class="meeting-list">
+          {% for meeting in today.meetings %}
+            <li>
+              <strong>{{ meeting.title }}</strong>
+              <span>
+                {% if meeting.all_day %}All day{% else %}{{ meeting.start_label }}–{{ meeting.end_label }}{% endif %}
+              </span>
+            </li>
+          {% endfor %}
+        </ul>
+      </section>
+    {% elif today %}
+      <p class="muted">Nothing is booked today between the working hours. The free-time page lists open slots.</p>
+    {% endif %}
+  {% endif %}
+{% endblock %}
+
+{% block scripts %}
+  <script src="{% static 'portal/js/google-connect.js' %}"></script>
+{% endblock %}

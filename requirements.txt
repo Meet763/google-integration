@@ -1,0 +1,6 @@
+Django>=5.1,<6
+google-api-python-client==2.201.0
+google-auth==2.60.0
+google-auth-httplib2==0.4.4
+cryptography==50.0.2
+requests==2.34.2

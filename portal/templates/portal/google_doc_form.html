@@ -1,0 +1,41 @@
+{% extends "portal/base.html" %}
+
+{% block title %}Google Docs - Calendar Desk{% endblock %}
+
+{% block content %}
+  <header class="page-head">
+    <h1>Google Docs</h1>
+    <p>Create a document in the connected Google account.</p>
+  </header>
+
+  <form class="panel stack-form" method="post" action="{% url 'google_doc_new' %}">
+    {% csrf_token %}
+    <label>
+      Document title
+      {{ form.title }}
+      {{ form.title.errors }}
+    </label>
+    <label>
+      Body
+      {{ form.body }}
+      {{ form.body.errors }}
+    </label>
+    <button type="submit" class="button">Create Google Doc</button>
+  </form>
+
+  {% if created %}
+    <section class="panel result-panel">
+      <h2>Document created</h2>
+      <dl class="facts">
+        <div>
+          <dt>Title</dt>
+          <dd>{{ created.title }}</dd>
+        </div>
+        <div>
+          <dt>Open</dt>
+          <dd><a href="{{ created.url }}" rel="noopener">Open in Google Docs</a></dd>
+        </div>
+      </dl>
+    </section>
+  {% endif %}
+{% endblock %}

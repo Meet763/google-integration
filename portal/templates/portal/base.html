@@ -1,0 +1,62 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Calendar Desk{% endblock %}</title>
+  <link rel="stylesheet" href="{% static 'portal/css/app.css' %}">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="{% url 'home' %}">Calendar Desk</a>
+    <nav class="nav">
+      {% if calendar_ready %}
+        <a href="{% url 'schedule' %}">Free time</a>
+        <a href="{% url 'event_new' %}">New event</a>
+      {% endif %}
+      {% if meet_ready %}
+        <a href="{% url 'meet_new' %}">Meet</a>
+      {% endif %}
+      {% if docs_ready %}
+        <a href="{% url 'google_doc_new' %}">Docs</a>
+      {% endif %}
+      {% if sheets_ready %}
+        <a href="{% url 'google_sheet_new' %}">Sheets</a>
+      {% endif %}
+      {% if forms_ready %}
+        <a href="{% url 'google_form_new' %}">Forms</a>
+      {% endif %}
+      {% if tasks_ready %}
+        <a href="{% url 'google_tasks' %}">Tasks</a>
+      {% endif %}
+    </nav>
+    <div class="account">
+      {% if user.is_authenticated %}
+        <span class="who">{{ google_connection.email|default:user.get_username }}</span>
+        {% if google_connection.is_connected and google_connection.google_enabled %}
+          <form method="post" action="{% url 'disable_google' %}">
+            {% csrf_token %}
+            <button type="submit" class="text-button">Pause Google</button>
+          </form>
+        {% endif %}
+        <form method="post" action="{% url 'logout' %}">
+          {% csrf_token %}
+          <button type="submit" class="text-button">Log out</button>
+        </form>
+      {% endif %}
+    </div>
+  </header>
+  <main class="wrap">
+    {% if messages %}
+      <ul class="messages">
+        {% for message in messages %}
+          <li class="message {{ message.tags }}">{{ message }}</li>
+        {% endfor %}
+      </ul>
+    {% endif %}
+    {% block content %}{% endblock %}
+  </main>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

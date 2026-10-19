@@ -1,0 +1,46 @@
+{% extends "portal/base.html" %}
+
+{% block title %}Google Sheets - Calendar Desk{% endblock %}
+
+{% block content %}
+  <header class="page-head">
+    <h1>Google Sheets</h1>
+    <p>Create a spreadsheet and seed it with rows from this page.</p>
+  </header>
+
+  <form class="panel stack-form" method="post" action="{% url 'google_sheet_new' %}">
+    {% csrf_token %}
+    <label>
+      Spreadsheet title
+      {{ form.title }}
+      {{ form.title.errors }}
+    </label>
+    <label>
+      Rows
+      {{ form.rows }}
+      <span class="hint">{{ form.rows.help_text }}</span>
+      {{ form.rows.errors }}
+    </label>
+    <button type="submit" class="button">Create Google Sheet</button>
+  </form>
+
+  {% if created %}
+    <section class="panel result-panel">
+      <h2>Spreadsheet created</h2>
+      <dl class="facts">
+        <div>
+          <dt>Title</dt>
+          <dd>{{ created.title }}</dd>
+        </div>
+        <div>
+          <dt>Open</dt>
+          <dd><a href="{{ created.url }}" rel="noopener">Open in Google Sheets</a></dd>
+        </div>
+        <div>
+          <dt>Rows written</dt>
+          <dd>{{ created.rows|length }}</dd>
+        </div>
+      </dl>
+    </section>
+  {% endif %}
+{% endblock %}

@@ -1,0 +1,48 @@
+{% extends "portal/base.html" %}
+
+{% block title %}Google Tasks - Calendar Desk{% endblock %}
+
+{% block content %}
+  <header class="page-head">
+    <h1>Google Tasks</h1>
+    <p>Add a task and review recent tasks from the connected account.</p>
+  </header>
+
+  <div class="split">
+    <form class="panel stack-form" method="post" action="{% url 'google_tasks' %}">
+      {% csrf_token %}
+      <label>
+        Task title
+        {{ form.title }}
+        {{ form.title.errors }}
+      </label>
+      <label>
+        Notes
+        {{ form.notes }}
+        {{ form.notes.errors }}
+      </label>
+      <label>
+        Due date
+        {{ form.due }}
+        {{ form.due.errors }}
+      </label>
+      <button type="submit" class="button">Add Google Task</button>
+    </form>
+
+    <section class="panel">
+      <h2>Recent tasks</h2>
+      {% if task_data.tasks %}
+        <ul class="meeting-list">
+          {% for task in task_data.tasks %}
+            <li>
+              <strong>{{ task.title|default:"Untitled task" }}</strong>
+              <span>{{ task.status|default:"needsAction" }}</span>
+            </li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <p class="muted">No tasks returned from Google Tasks yet.</p>
+      {% endif %}
+    </section>
+  </div>
+{% endblock %}

@@ -1,0 +1,66 @@
+{% extends "portal/base.html" %}
+{% load static %}
+
+{% block title %}Google Meet - Calendar Desk{% endblock %}
+
+{% block content %}
+  <header class="page-head">
+    <h1>Google Meet</h1>
+    <p>Create a Calendar event with a Google Meet link.</p>
+  </header>
+
+  <form class="panel stack-form" id="event-form" method="post" action="{% url 'meet_new' %}">
+    {% csrf_token %}
+    <label>
+      Title
+      {{ form.title }}
+      {{ form.title.errors }}
+    </label>
+
+    <div class="grid-3">
+      <label>
+        Date
+        {{ form.day }}
+        {{ form.day.errors }}
+      </label>
+      <label>
+        Start
+        {{ form.start_time }}
+        {{ form.start_time.errors }}
+      </label>
+      <label>
+        Duration (minutes)
+        {{ form.duration }}
+        {{ form.duration.errors }}
+      </label>
+    </div>
+
+    <label>
+      Time zone
+      {{ form.timezone_name }}
+      {{ form.timezone_name.errors }}
+    </label>
+
+    {% if integration.attendees_allowed %}
+      <label class="check">
+        {{ form.attendees_enabled }}
+        <span>Add attendees</span>
+      </label>
+      <div class="attendees" id="attendees-fields">
+        <label>
+          Attendee emails
+          {{ form.attendees }}
+          <span class="hint">One address per line.</span>
+          {{ form.attendees.errors }}
+        </label>
+      </div>
+    {% endif %}
+
+    <p class="summary" id="event-summary" aria-live="polite"></p>
+    <button type="submit" class="button">Create Google Meet</button>
+  </form>
+{% endblock %}
+
+{% block scripts %}
+  <script src="{% static 'portal/js/event-form.js' %}"></script>
+{% endblock %}
